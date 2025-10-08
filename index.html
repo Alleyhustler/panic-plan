@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE PANIC PLAN — Emergency Liquidity Framework</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #0E0E0F;
+            color: #E5E5E5;
+            overflow-x: hidden;
+            cursor: crosshair;
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to bottom, transparent, #D82E2E, transparent);
+            animation: scan 4s linear infinite;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.3;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+
+        .particle-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: #E5E5E5;
+            animation: float 20s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); opacity: 0; }
+            50% { opacity: 0.5; }
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(14, 14, 15, 0.95), transparent);
+        }
+
+        .logo-container {
+            text-align: center;
+            flex: 1;
+        }
+
+        .logo {
+            width: 180px;
+            height: auto;
+            filter: drop-shadow(0 0 20px rgba(216, 46, 46, 0.3));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(216, 46, 46, 0.3)); }
+            50% { filter: drop-shadow(0 0 30px rgba(216, 46, 46, 0.5)); }
+        }
+
+        .subtitle {
+            margin-top: 0.5rem;
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            margin-right: 1100px;
+            text-transform: uppercase;
+            color: #888;
+            font-weight: 300;
+        }
+
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.8rem;
+        }
+
+        .wallet-btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: transparent;
+            color: #D82E2E;
+            border: 2px solid #D82E2E;
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wallet-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: #D82E2E;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+            z-index: -1;
+        }
+
+        .wallet-btn:hover::before {
+            width: 100%;
+            height: 100%;
+        }
+
+        .wallet-btn:hover {
+            color: #0E0E0F;
+        }
+
+        .wallet-btn.connected {
+            color: #4ADE80;
+            border-color: #4ADE80;
+        }
+
+        .wallet-btn.connected::before {
+            background: #4ADE80;
+        }
+
+        .header-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        .header-link {
+            color: #888;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-link:hover {
+            color: #D82E2E;
+        }
+
+        .header-link span {
+            color: #666;
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 30% 50%, rgba(216, 46, 46, 0.1), transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(246, 180, 0, 0.05), transparent 50%),
+                linear-gradient(135deg, #0E0E0F 0%, #1a1a1c 100%);
+            z-index: 0;
+        }
+
+        .crisis-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(216, 46, 46, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(216, 46, 46, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            animation: grid-shift 20s linear infinite;
+        }
+
+        @keyframes grid-shift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 6rem;
+            font-weight: 700;
+            letter-spacing: -2px;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #E5E5E5, #999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: #999;
+            margin-bottom: 2rem;
+        }
+
+        .hero-logo {
+            width: 200px;
+            margin-left: 0px;
+            margin-bottom: 3rem;
+            filter: drop-shadow(0 0 25px rgba(216, 46, 46, 0.4));
+            animation: logo-float 4s ease-in-out infinite;
+        }
+
+        @keyframes logo-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .panic-btn {
+            padding: 1.2rem 3rem;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: transparent;
+            color: #D82E2E;
+            border: 2px solid #D82E2E;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .panic-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: #D82E2E;
+            transform: translate(-50%, -50%);
+            transition: width 0.5s ease, height 0.5s ease;
+            z-index: -1;
+            box-shadow: 0 0 30px rgba(216, 46, 46, 0.6);
+            animation: pulse-border 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 20px rgba(216, 46, 46, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(216, 46, 46, 0.8); }
+        }
+
+        .panic-btn:hover::before {
+            width: 100%;
+            height: 100%;
+        }
+
+        .panic-btn:hover {
+            color: #0E0E0F;
+        }
+
+        .dashboard {
+            min-height: 100vh;
+            padding: 8rem 4rem 4rem;
+            position: relative;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto 4rem;
+        }
+
+        .status-panel {
+            background: rgba(26, 26, 28, 0.6);
+            border: 1px solid rgba(216, 46, 46, 0.3);
+            padding: 2rem;
+            position: relative;
+            backdrop-filter: blur(10px);
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { border-color: rgba(216, 46, 46, 0.3); }
+            50% { border-color: rgba(216, 46, 46, 0.6); }
+        }
+
+        .panel-label {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .panel-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #D82E2E;
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-status {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .claim-section {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(26, 26, 28, 0.8);
+            border: 2px solid rgba(216, 46, 46, 0.4);
+            padding: 3rem;
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(15px);
+        }
+
+        .claim-section::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #D82E2E, transparent);
+            animation: sweep 3s ease-in-out infinite;
+        }
+
+        @keyframes sweep {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .claim-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .execute-btn {
+            padding: 1.5rem 4rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #1a1a1c, #2a2a2c);
+            color: #E5E5E5;
+            border: none;
+            border-bottom: 3px solid #D82E2E;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+            box-shadow: 0 5px 30px rgba(216, 46, 46, 0.3);
+        }
+
+        .execute-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 40px rgba(216, 46, 46, 0.5);
+        }
+
+        .lore-section {
+            padding: 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .terminal-window {
+            background: rgba(14, 14, 15, 0.95);
+            border: 1px solid #333;
+            padding: 2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            color: #888;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .terminal-line {
+            margin-bottom: 0.5rem;
+            animation: flicker 0.1s infinite;
+        }
+
+        .terminal-line.warning {
+            color: #F6B400;
+        }
+
+        .terminal-line.critical {
+            color: #D82E2E;
+        }
+
+        .terminal-line.system {
+            color: #666;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.95; }
+        }
+
+        footer {
+            padding: 3rem 4rem;
+            border-top: 1px solid rgba(216, 46, 46, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to top, rgba(216, 46, 46, 0.05), transparent);
+        }
+
+        .footer-left, .footer-right {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: #555;
+        }
+
+        .footer-right {
+            color: #D82E2E;
+            text-transform: uppercase;
+        }
+
+        .market-graph {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .wallet-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wallet-modal.active {
+            display: flex;
+        }
+
+        .wallet-modal-content {
+            background: #1a1a1c;
+            border: 2px solid #D82E2E;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+        }
+
+        .wallet-modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .wallet-option {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: rgba(216, 46, 46, 0.1);
+            border: 1px solid rgba(216, 46, 46, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .wallet-option:hover {
+            background: rgba(216, 46, 46, 0.2);
+            border-color: #D82E2E;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: #D82E2E;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 3rem; }
+            header { 
+                padding: 1.5rem 2rem;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+            .header-right {
+                align-items: center;
+            }
+            .dashboard { padding: 6rem 2rem 2rem; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            footer { flex-direction: column; gap: 1rem; }
+            .hero-logo { width: 150px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanline"></div>
+    <div class="particle-layer" id="particles"></div>
+
+    <header>
+        <div class="logo-container">
+            <img src="op" alt="The Panic Plan" class="logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display:none; font-size: 2rem; font-weight: 700; letter-spacing: 3px; margin-right: 1200px;">THE PANIC PLAN</div>
+            <div class="subtitle">Emergency Liquidity Framework // 2025</div>
+        </div>
+        
+        <div class="header-right">
+            <button class="wallet-btn" id="walletBtn" onclick="toggleWalletModal()">Connect Wallet</button>
+            <div class="header-links">
+                <a href="x.com" target="_blank" class="header-link">
+                    <span>𝕏</span> Twitter
+                </a>
+                <a href="x.com" target="_blank" class="header-link">
+                    <span>CA:</span> CA HERE
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="wallet-modal" id="walletModal">
+        <div class="wallet-modal-content">
+            <button class="close-modal" onclick="toggleWalletModal()">×</button>
+            <h2 class="wallet-modal-title">Select Wallet</h2>
+            <div class="wallet-option" onclick="connectWallet('phantom')">
+                <span>👻</span> Phantom
+            </div>
+            <div class="wallet-option" onclick="connectWallet('solflare')">
+                <span>🔥</span> Solflare
+            </div>
+        </div>
+    </div>
+
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="crisis-grid"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">THE PANIC PLAN</h1>
+            <p class="hero-subtitle">Remain calm. The protocol is running.</p>
+            <img src="Progetto_senza_titolo-removebg-preview.png" alt="Panic Plan Logo" class="hero-logo" onerror="this.style.display='none';">
+        </div>
+                    <button class="panic-btn" onclick="document.getElementById('dashboard').scrollIntoView({behavior: 'smooth'})">[ INITIATE PANIC ]</button>
+
+    </section>
+
+    <section class="dashboard" id="dashboard">
+        <div class="dashboard-grid">
+            <div class="status-panel">
+                <div class="panel-label">Connection Status</div>
+                <div class="panel-value" id="connectionStatus">FALSE</div>
+                <div class="panel-status" id="connectionText">Wallet Disconnected</div>
+            </div>
+            <div class="status-panel">
+                <div class="panel-label">Panic Level</div>
+                <div class="panel-value">RISING</div>
+                <div class="panel-status">Critical Threshold Approaching</div>
+            </div>
+            <div class="status-panel">
+                <div class="panel-label">Distribution Protocol</div>
+                <div class="panel-value">ACTIVE</div>
+                <div class="panel-status">Emergency Allocation Live</div>
+            </div>
+        </div>
+
+        <div class="claim-section">
+            <h2 class="claim-title">Claim Your Panic Allocation</h2>
+            <button class="execute-btn" onclick="executePlan()">[ EXECUTE PLAN ]</button>
+        </div>
+
+        <canvas class="market-graph" id="marketGraph"></canvas>
+    </section>
+
+    <section class="lore-section">
+        <div class="terminal-window" id="terminal">
+            <div class="terminal-line system">> SYSTEM DIAGNOSTICS ACTIVE...</div>
+            <div class="terminal-line critical">>> MARKET STABILITY INDEX: COLLAPSED</div>
+            <div class="terminal-line warning">>> HUMAN CONFIDENCE: 0.13%</div>
+            <div class="terminal-line system">>> PROTOCOL RESPONSE: AUTOMATED PANIC CONTAINMENT</div>
+            <div class="terminal-line system">> Monitoring sentiment vectors...</div>
+            <div class="terminal-line critical">>> WARNING: Emotional volatility detected</div>
+            <div class="terminal-line system">>> Deploying psychological stabilizers...</div>
+            <div class="terminal-line warning">>> Do not sell. Do not breathe. Continue holding.</div>
+            <div class="terminal-line system">> Phase III containment protocols engaged</div>
+            <div class="terminal-line system">>> Liquidity reserves: DISTRIBUTED</div>
+            <div class="terminal-line critical">>> Emergency mode: PERMANENT</div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-left">© 2025 PANIC SYSTEMS — CONTINGENCY FRAMEWORK 07B</div>
+        <div class="footer-right">> status: CONTROLLED PANIC / PHASE III ACTIVE</div>
+    </footer>
+
+    <script>
+        // Wallet state
+        let walletConnected = false;
+        let walletAddress = null;
+
+        // Particle system
+        const particleLayer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            particleLayer.appendChild(particle);
+        }
+
+        // Market graph animation
+        const canvas = document.getElementById('marketGraph');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        let time = 0;
+
+        function drawGraph() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'rgba(216, 46, 46, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+
+            for (let x = 0; x < canvas.width; x += 5) {
+                const y = canvas.height / 2 + Math.sin(x * 0.01 + time) * 50 + Math.random() * 30 - 15;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+
+            ctx.stroke();
+            time += 0.02;
+            requestAnimationFrame(drawGraph);
+        }
+
+        drawGraph();
+
+        // Terminal typing effect
+        const terminal = document.getElementById('terminal');
+        let lineIndex = 0;
+        const lines = terminal.children;
+
+        function revealLines() {
+            if (lineIndex < lines.length) {
+                lines[lineIndex].style.opacity = '0';
+                lines[lineIndex].style.animation = 'none';
+                setTimeout(() => {
+                    lines[lineIndex].style.opacity = '1';
+                    lines[lineIndex].style.animation = 'flicker 0.1s infinite';
+                }, 100);
+                lineIndex++;
+                setTimeout(revealLines, 800);
+            }
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && lineIndex === 0) {
+                    revealLines();
+                }
+            });
+        });
+
+        observer.observe(terminal);
+
+        // Wallet connection functions
+        function toggleWalletModal() {
+            const modal = document.getElementById('walletModal');
+            modal.classList.toggle('active');
+        }
+
+        async function connectWallet(walletType) {
+            try {
+                let provider;
+                
+                if (walletType === 'phantom') {
+                    if (window.solana && window.solana.isPhantom) {
+                        provider = window.solana;
+                    } else {
+                        alert('Phantom wallet not found! Please install it from phantom.app');
+                        window.open('https://phantom.app/', '_blank');
+                        return;
+                    }
+                } else if (walletType === 'solflare') {
+                    if (window.solflare && window.solflare.isSolflare) {
+                        provider = window.solflare;
+                    } else {
+                        alert('Solflare wallet not found! Please install it from solflare.com');
+                        window.open('https://solflare.com/', '_blank');
+                        return;
+                    }
+                }
+
+                const resp = await provider.connect();
+                walletAddress = resp.publicKey.toString();
+                walletConnected = true;
+                
+                updateWalletUI();
+                toggleWalletModal();
+                
+                console.log('Connected to wallet:', walletAddress);
+            } catch (err) {
+                console.error('Wallet connection error:', err);
+                alert('Failed to connect wallet. Please try again.');
+            }
+        }
+
+        function updateWalletUI() {
+            const walletBtn = document.getElementById('walletBtn');
+            const connectionStatus = document.getElementById('connectionStatus');
+            const connectionText = document.getElementById('connectionText');
+            
+            if (walletConnected && walletAddress) {
+                const shortAddress = walletAddress.slice(0, 4) + '...' + walletAddress.slice(-4);
+                walletBtn.textContent = shortAddress;
+                walletBtn.classList.add('connected');
+                connectionStatus.textContent = 'TRUE';
+                connectionText.textContent = 'Wallet Connected';
+            } else {
+                walletBtn.textContent = 'Connect Wallet';
+                walletBtn.classList.remove('connected');
+                connectionStatus.textContent = 'FALSE';
+                connectionText.textContent = 'Wallet Disconnected';
+            }
+        }
+
+        function executePlan() {
+            if (!walletConnected) {
+                alert('Please connect your wallet first!');
+                return;
+            }
+            alert('Protocol executing... Please remain calm.\n\nConnected wallet: ' + walletAddress);
+        }
+
+        // Check for wallet on page load
+        window.addEventListener('load', () => {
+            if (window.solana && window.solana.isPhantom) {
+                console.log('Phantom wallet detected');
+            }
+            if (window.solflare && window.solflare.isSolflare) {
+                console.log('Solflare wallet detected');
+            }
+        });
+    </script>
+</body>
+</html>
